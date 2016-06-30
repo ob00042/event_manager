@@ -38,12 +38,49 @@ def clean_phone_number(phone)
 
 end
 
+def check_hour(date)
+
+  full_time = DateTime.strptime(date, "%m/%d/%y %H:%M")
+  hour = full_time.hour
+  @visited_day << full_time.wday
+
+  @visited_hour += hour
+  @count += 1
+
+end
+
+def common_day
+  avg_day = @visited_day.group_by(&:itself).values.max_by(&:size).first
+  case avg_day.to_s
+  when "0"
+  	puts "Sunday"
+  when "1"
+  	puts "Monday"
+  when "2"
+  	puts "Tuesday"
+  when "3"
+  	puts "Wednesday"
+  when "4"
+  	puts "Thursday"
+  when "5"
+  	puts "Friday"
+  when "6"
+  	puts "Saturday"
+  else
+  	puts "Oh fuck off"
+  end
+end
+
 puts "EventManager Initialized!"
 
 contents = CSV.open "event_attendees.csv", headers: true, header_converters: :symbol
 
 template_letter = File.read "form_letter.erb"
 erb_template = ERB.new template_letter
+
+@visited_hour = 0
+@visited_day = []
+@count = 0
 
 contents.each do |row|
 	id = row[0]
@@ -59,5 +96,13 @@ contents.each do |row|
 
 	phone_number = clean_phone_number(row[:homephone])
 
-	puts phone_number
+	hour = check_hour(row[:regdate])
+
 end
+
+avegare_hour = @visited_hour/@count
+
+puts "Most people registered at #{avegare_hour}"
+
+print "Most common day is "
+common_day
