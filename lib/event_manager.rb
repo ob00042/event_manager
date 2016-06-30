@@ -22,6 +22,22 @@ def save_thank_you_letters(id, form_letter)
   end
 end
 
+def clean_phone_number(phone)
+
+	phone = phone.to_s.scan(/[\d*]/).join
+
+	unless phone.length == 10
+	  if phone.length == 11 && phone[0] == "1"
+		phone = phone[1..-1]
+	  else
+		phone = "0000000000"
+	  end
+	end
+
+	phone
+
+end
+
 puts "EventManager Initialized!"
 
 contents = CSV.open "event_attendees.csv", headers: true, header_converters: :symbol
@@ -39,5 +55,9 @@ contents.each do |row|
 
 	form_letter = erb_template.result(binding)
 
-	save_thank_you_letters(id, form_letter)
+	#save_thank_you_letters(id, form_letter)
+
+	phone_number = clean_phone_number(row[:homephone])
+
+	puts phone_number
 end
